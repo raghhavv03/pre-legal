@@ -36,3 +36,17 @@ def test_chat_nda_returns_503_when_ollama_unreachable():
     with TestClient(app) as client, patch("app.chat.litellm.completion", side_effect=ConnectionError("refused")):
         response = client.post("/api/chat/nda", json={"messages": [{"role": "user", "content": "hi"}]})
         assert response.status_code == 503
+
+
+def test_chat_nda_only_sends_recent_turns_to_the_model():
+    long_history = [{"role": "user", "content": f"turn {i}"} for i in range(20)]
+
+    with TestClient(app) as client, patch(
+        "app.chat.litellm.completion", side_effect=_fake_completion
+    ) as mock_completion:
+        client.post("/api/chat/nda", json={"messages": long_history, "fields": {}})
+
+        sent_messages = mock_completion.call_args.kwargs["messages"]
+        user_turns = [m for m in sent_messages if m["role"] == "user"]
+        assert len(user_turns) <= 6
+        assert user_turns[-1]["content"] == "turn 19"

@@ -121,6 +121,8 @@ export default function ChatPanel({ fields, onFieldsChange }: Props) {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
+          // Backend only keeps the last few turns -- sending the full transcript here is fine,
+          // it bounds it server-side rather than duplicating that constant in two places.
           messages: nextMessages.filter((m) => m !== GREETING),
           fields: toFlatFields(fields ?? emptyPartialNdaFormData),
         }),
@@ -138,22 +140,25 @@ export default function ChatPanel({ fields, onFieldsChange }: Props) {
   }
 
   return (
-    <div className="flex h-full flex-col gap-4 rounded-lg border border-zinc-200 p-4 dark:border-zinc-700">
+    <div className="flex h-full flex-col gap-4 rounded-xl border border-primary-blue/20 bg-white p-4 shadow-lg dark:border-primary-blue/30 dark:bg-zinc-950">
       <div className="flex flex-1 flex-col gap-3 overflow-y-auto">
         {messages.map((m, i) => (
           <div
             key={i}
             className={`max-w-[85%] rounded-lg px-3 py-2 text-sm ${
               m.role === "user"
-                ? "self-end bg-zinc-900 text-white dark:bg-white dark:text-black"
-                : "self-start bg-zinc-100 text-zinc-900 dark:bg-zinc-800 dark:text-zinc-100"
+                ? "self-end bg-primary-blue text-white"
+                : "self-start border border-dark-navy/10 bg-dark-navy/5 text-dark-navy dark:border-white/10 dark:bg-white/5 dark:text-zinc-100"
             }`}
           >
             {m.content}
           </div>
         ))}
         {isSending && (
-          <div className="self-start text-sm text-zinc-500">Thinking…</div>
+          <div className="flex items-center gap-2 self-start text-sm text-gray-text">
+            <span className="h-2 w-2 animate-pulse rounded-full bg-accent-yellow" />
+            Thinking…
+          </div>
         )}
       </div>
 
@@ -161,7 +166,7 @@ export default function ChatPanel({ fields, onFieldsChange }: Props) {
 
       <form onSubmit={sendMessage} className="flex gap-2">
         <input
-          className="flex-1 rounded-md border border-zinc-300 px-3 py-2 text-sm dark:border-zinc-600 dark:bg-zinc-900"
+          className="flex-1 rounded-md border border-zinc-300 px-3 py-2 text-sm focus:border-primary-blue focus:outline-none focus:ring-1 focus:ring-primary-blue dark:border-zinc-600 dark:bg-zinc-900"
           value={input}
           onChange={(e) => setInput(e.target.value)}
           placeholder="Type your answer…"
@@ -170,7 +175,7 @@ export default function ChatPanel({ fields, onFieldsChange }: Props) {
         <button
           type="submit"
           disabled={isSending || !input.trim()}
-          className="rounded-full bg-zinc-900 px-5 py-2 text-sm font-medium text-white transition-colors hover:bg-zinc-700 disabled:opacity-50 dark:bg-white dark:text-black dark:hover:bg-zinc-200"
+          className="rounded-full bg-secondary-purple px-5 py-2 text-sm font-medium text-white shadow-md transition-colors hover:bg-secondary-purple/90 disabled:opacity-50 disabled:shadow-none"
         >
           Send
         </button>

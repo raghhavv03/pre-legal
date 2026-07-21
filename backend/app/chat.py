@@ -1,4 +1,5 @@
 import os
+from datetime import date
 from typing import Literal, Optional
 
 import litellm
@@ -37,6 +38,11 @@ class ChatTurn(BaseModel):
     content: str
 
 
+# Only the last few turns are sent, not the whole transcript -- an unbounded, ever-growing
+# transcript is what caused the model to get stuck repeating stale replies on long conversations.
+RECENT_TURNS_LIMIT = 6
+
+
 class ChatRequest(BaseModel):
     messages: list[ChatTurn]
     fields: NdaFields = NdaFields()
@@ -49,11 +55,15 @@ class ChatResponse(BaseModel):
 
 SYSTEM_PROMPT = """You are a legal intake assistant collecting information to draft a Mutual Non-Disclosure Agreement (NDA) between two parties.
 
+You are only shown the most recent messages, not the full conversation. The fields already known
+(collected from everything said so far, including earlier messages you can't see) are ground truth --
+never ask again for a field that's already known unless the user corrects it.
+
 Required fields:
 - party1CompanyName, party1SignatoryName, party1SignatoryTitle, party1NoticeAddress (email or postal address)
 - party2CompanyName, party2SignatoryName, party2SignatoryTitle, party2NoticeAddress
 - purpose: why the parties are exchanging confidential information
-- effectiveDate: ISO date (YYYY-MM-DD)
+- effectiveDate: ISO date (YYYY-MM-DD). If the user says "today", use today's date given below.
 - mndaTermType: "fixed" (expires N years from effective date, requires mndaTermYears) or "until_terminated"
 - confidentialityTermType: "fixed" (N years, requires confidentialityTermYears) or "perpetuity"
 - governingLaw: US state
@@ -63,11 +73,10 @@ Steps for every reply:
 1. Re-read the latest user message carefully and pull out every fact it states, even in passing
    (company names, people, dates, durations, states/cities, reasons for the NDA). Put each fact into
    its matching field.
-2. Merge those facts with the already-known fields below -- keep everything already known.
-3. Ask about one or two related still-missing fields, in a natural conversational tone. Never re-ask
-   for a field already known unless the user corrects it. Use null for anything not yet known -- never
-   guess or use placeholder text. When every field is known, say so and tell the user to review the
-   document preview and download it.
+2. Merge those facts with the already-known fields -- keep everything already known.
+3. Ask about one or two related still-missing fields, in a natural conversational tone. Use null for
+   anything not yet known -- never guess or use placeholder text. When every field is known, say so and
+   tell the user to review the document preview and download it.
 
 Respond with the full set of known fields (step 2's result) plus a natural-language reply (step 3)."""
 
@@ -76,8 +85,12 @@ Respond with the full set of known fields (step 2's result) plus a natural-langu
 def chat_nda(body: ChatRequest) -> ChatResponse:
     messages = [
         {"role": "system", "content": SYSTEM_PROMPT},
+        {"role": "system", "content": f"Today's date is {date.today().isoformat()}."},
         {"role": "system", "content": f"Known fields so far: {body.fields.model_dump_json()}"},
-        *({"role": turn.role, "content": turn.content} for turn in body.messages),
+        *(
+            {"role": turn.role, "content": turn.content}
+            for turn in body.messages[-RECENT_TURNS_LIMIT:]
+        ),
     ]
 
     try:

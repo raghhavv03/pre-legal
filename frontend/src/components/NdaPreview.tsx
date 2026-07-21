@@ -9,31 +9,31 @@ import {
 
 export default function NdaPreview({ data }: { data: NdaFormData }) {
   return (
-    <article className="flex flex-col gap-4 rounded-lg border border-zinc-200 bg-white p-6 text-sm dark:border-zinc-700 dark:bg-zinc-900">
-      <h2 className="text-lg font-semibold">Mutual Non-Disclosure Agreement</h2>
+    <article className="flex flex-col gap-4 rounded-xl border border-zinc-200 bg-white p-6 text-sm shadow-lg dark:border-zinc-700 dark:bg-zinc-900">
+      <h2 className="text-lg font-semibold text-dark-navy dark:text-white">Mutual Non-Disclosure Agreement</h2>
 
       <section>
-        <h3 className="font-semibold">Purpose</h3>
+        <h3 className="font-semibold text-dark-navy dark:text-white">Purpose</h3>
         <p>{data.purpose}</p>
       </section>
 
       <section>
-        <h3 className="font-semibold">Effective Date</h3>
+        <h3 className="font-semibold text-dark-navy dark:text-white">Effective Date</h3>
         <p>{formatDate(data.effectiveDate)}</p>
       </section>
 
       <section>
-        <h3 className="font-semibold">MNDA Term</h3>
+        <h3 className="font-semibold text-dark-navy dark:text-white">MNDA Term</h3>
         <p>{mndaTermText(data)}</p>
       </section>
 
       <section>
-        <h3 className="font-semibold">Term of Confidentiality</h3>
+        <h3 className="font-semibold text-dark-navy dark:text-white">Term of Confidentiality</h3>
         <p>{confidentialityTermText(data)}</p>
       </section>
 
       <section>
-        <h3 className="font-semibold">Governing Law &amp; Jurisdiction</h3>
+        <h3 className="font-semibold text-dark-navy dark:text-white">Governing Law &amp; Jurisdiction</h3>
         <p>Governing Law: {data.governingLaw || "[Fill in state]"}</p>
         <p>Jurisdiction: {data.jurisdiction || "[Fill in city or county and state]"}</p>
       </section>
@@ -41,9 +41,9 @@ export default function NdaPreview({ data }: { data: NdaFormData }) {
       <table className="w-full border-collapse text-left text-xs">
         <thead>
           <tr>
-            <th className="border border-zinc-300 p-2 dark:border-zinc-700" />
-            <th className="border border-zinc-300 p-2 dark:border-zinc-700">Party 1</th>
-            <th className="border border-zinc-300 p-2 dark:border-zinc-700">Party 2</th>
+            <th className="border border-zinc-300 bg-primary-blue/10 p-2 dark:border-zinc-700 dark:bg-primary-blue/20" />
+            <th className="border border-zinc-300 bg-primary-blue/10 p-2 text-dark-navy dark:border-zinc-700 dark:bg-primary-blue/20 dark:text-white">Party 1</th>
+            <th className="border border-zinc-300 bg-primary-blue/10 p-2 text-dark-navy dark:border-zinc-700 dark:bg-primary-blue/20 dark:text-white">Party 2</th>
           </tr>
         </thead>
         <tbody>
@@ -65,7 +65,7 @@ export default function NdaPreview({ data }: { data: NdaFormData }) {
         </tbody>
       </table>
 
-      <h2 className="mt-4 text-lg font-semibold">Standard Terms</h2>
+      <h2 className="mt-4 text-lg font-semibold text-dark-navy dark:text-white">Standard Terms</h2>
       {STANDARD_TERMS_CLAUSES.map((clause, i) => (
         <p key={clause.title}>
           <span className="font-semibold">
