@@ -4,10 +4,12 @@ from contextlib import asynccontextmanager
 from pathlib import Path
 
 from fastapi import Depends, FastAPI, HTTPException, status
+from fastapi.middleware.cors import CORSMiddleware
 from fastapi.staticfiles import StaticFiles
 
 from app import database
 from app.auth import create_access_token, get_current_user, hash_password, verify_password
+from app.chat import router as chat_router
 from app.schemas import LoginRequest, RegisterRequest, TokenResponse, UserResponse
 
 FRONTEND_DIST = Path(os.environ.get("FRONTEND_DIST", Path(__file__).resolve().parent.parent.parent / "frontend" / "out"))
@@ -20,6 +22,13 @@ async def lifespan(app: FastAPI):
 
 
 app = FastAPI(title="Prelegal API", lifespan=lifespan)
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=["http://localhost:3000"],
+    allow_methods=["*"],
+    allow_headers=["*"],
+)
+app.include_router(chat_router)
 
 
 @app.post("/api/auth/register", response_model=TokenResponse, status_code=status.HTTP_201_CREATED)

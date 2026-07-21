@@ -17,6 +17,8 @@ COPY --from=frontend-build /frontend/out ./frontend/out
 
 ENV FRONTEND_DIST=/app/frontend/out
 ENV DB_PATH=/app/data/app.db
+# Ollama runs on the host, not in this container -- host.docker.internal reaches it from inside.
+ENV OLLAMA_BASE_URL=http://host.docker.internal:11434
 
 EXPOSE 8000
 CMD [".venv/bin/uvicorn", "app.main:app", "--host", "0.0.0.0", "--port", "8000"]
