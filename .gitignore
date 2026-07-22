@@ -33,7 +33,7 @@ venv.bak/
 .env.*
 !.env.example
 
-# Testing / coverage
+# Testing / coverage / caches
 .tox/
 .nox/
 .coverage
@@ -45,8 +45,6 @@ coverage.xml
 *.py,cover
 .hypothesis/
 .pytest_cache/
-
-# Type checkers / linters
 .mypy_cache/
 .dmypy.json
 dmypy.json
@@ -54,11 +52,7 @@ dmypy.json
 .ruff_cache/
 .pyre/
 
-# Jupyter
-.ipynb_checkpoints
-
-# Alembic
-# (keep migration scripts, ignore local db files instead)
+# SQLite / Local Databases
 *.db
 *.sqlite3
 
@@ -67,23 +61,9 @@ node_modules/
 .pnp
 .pnp.js
 .yarn/install-state.gz
-
-# Next.js build output
 .next/
 out/
-build/
-dist/
-
-# Production
-/build
-
-# Testing
-/coverage
-
-# Turbo
 .turbo
-
-# Vercel
 .vercel
 
 # Package manager logs
@@ -97,20 +77,22 @@ pnpm-debug.log*
 *.tsbuildinfo
 next-env.d.ts
 
-# === Editors / OS ===
-.vscode/
-!.vscode/extensions.json
-.idea/
+# === IDEs, Tooling & OS ===
 .DS_Store
 Thumbs.db
 *.swp
 *.swo
+.vscode/
+!.vscode/extensions.json
+.idea/
+.claude/
+.history/
 
 # === Logs ===
 logs/
 *.log
 
-# === Misc ===
+# === Misc / PID ===
 *.pid
 *.seed
 *.pid.lock
